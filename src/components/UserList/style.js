@@ -54,3 +54,4 @@ export const Filters = styled.div`
     margin-inline-end: 8px;
   }
 `;
+

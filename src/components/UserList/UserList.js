@@ -5,9 +5,23 @@ import CheckBox from "components/CheckBox";
 import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
+import useInView from "react-cool-inview";
 
-const UserList = ({ users, isLoading }) => {
+
+const UserList = ({ users, isLoading, onChange, favoriteList, toggleFavorite, loadMoreUsers, isFavPage }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
+
+  const { observe } = useInView({
+    // When the last item comes to the viewport
+    onEnter: ({ unobserve, observe }) => {
+      // Pause observe when loading data
+      unobserve();
+      if (!loadMoreUsers) return
+      loadMoreUsers().then((res) => {
+        observe();
+      });
+    },
+  });
 
   const handleMouseEnter = (index) => {
     setHoveredUserId(index);
@@ -19,21 +33,24 @@ const UserList = ({ users, isLoading }) => {
 
   return (
     <S.UserList>
-      <S.Filters>
-        <CheckBox value="BR" label="Brazil" />
-        <CheckBox value="AU" label="Australia" />
-        <CheckBox value="CA" label="Canada" />
-        <CheckBox value="DE" label="Germany" />
-      </S.Filters>
+      {!isFavPage && <S.Filters>
+        <CheckBox value="BR" label="Brazil" onChange={onChange} />
+        <CheckBox value="AU" label="Australia" onChange={onChange} />
+        <CheckBox value="CA" label="Canada" onChange={onChange} />
+        <CheckBox value="DE" label="Germany" onChange={onChange} />
+        <CheckBox value="DK" label="Denmark" onChange={onChange} />
+
+      </S.Filters>}
       <S.List>
-        {users.map((user, index) => {
+        {users.length && users.map((user, index) => {
           return (
-            <S.User
+
+            <S.User ref={index === users.length - 1 ? observe : null}
               key={index}
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseLeave={handleMouseLeave}
             >
-              <S.UserPicture src={user?.picture.large} alt="" />
+              <S.UserPicture src={user?.picture?.large} alt="" />
               <S.UserInfo>
                 <Text size="22px" bold>
                   {user?.name.title} {user?.name.first} {user?.name.last}
@@ -46,7 +63,7 @@ const UserList = ({ users, isLoading }) => {
                   {user?.location.city} {user?.location.country}
                 </Text>
               </S.UserInfo>
-              <S.IconButtonWrapper isVisible={index === hoveredUserId}>
+              <S.IconButtonWrapper onClick={() => toggleFavorite(user.email)} isVisible={index === hoveredUserId || favoriteList?.includes(user.email)}>
                 <IconButton>
                   <FavoriteIcon color="error" />
                 </IconButton>
@@ -54,6 +71,9 @@ const UserList = ({ users, isLoading }) => {
             </S.User>
           );
         })}
+        {!users.length && isFavPage &&
+          <Text size="38px">You Dont Have Favorites User yet</Text>
+        }
         {isLoading && (
           <S.SpinnerWrapper>
             <Spinner color="primary" size="45px" thickness={6} variant="indeterminate" />

@@ -1,5 +1,6 @@
 {
   "name": "ppl-finder",
+  "homepage":"https://eransevil.github.io/PplFinder",
   "version": "1.0.7",
   "bin": "./bin/cli.js",
   "license": "MIT",
@@ -25,7 +26,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [

@@ -1,1 +1,1 @@
-export { usePeopleFetch } from "./usePeopleFetch";
+export { usePeopleFetch } from "./usePeopleFetch"; 
